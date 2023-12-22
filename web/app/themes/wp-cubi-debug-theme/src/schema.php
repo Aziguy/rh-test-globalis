@@ -106,8 +106,8 @@ function register_post_type_registration()
                     return;
                 }
                 ?>
-                <a href="<?= get_edit_post_link($registration_event_id) ?>"><?= get_the_title($registration_event_id) ?></a>
-                <?php
+<a href="<?= get_edit_post_link($registration_event_id) ?>"><?= get_the_title($registration_event_id) ?></a>
+<?php
             }],
         ],
         'admin_filters'        => [],
