@@ -32,25 +32,37 @@ function register_post_type_event()
         'site_filters'         => null,
         'site_sortables'       => null,
         'archive'              => null,
-        'admin_cols'           => [
-            'event-date' => ['title' => 'Event date', 'sortable' => false, 'function' => function () {
-                global $post;
-                $event_date = get_field('event_date', $post);
-                $event_time = get_field('event_time', $post);
-                if (empty($event_date) || empty($event_time)) {
-                    echo "&mdash;";
-                    return;
-                }
-                echo $event_date . ' ' . $event_time;
-            }],
-            'registrations' => ['title' => 'Registrations', 'sortable' => false, 'function' => function () {
-                global $post;
-                global $wpdb;
-                $sql_query = $wpdb->prepare("SELECT COUNT(`post_id`) as count FROM %i WHERE `meta_key` = 'registration_event_id' AND `meta_value` = %d", $wpdb->postmeta, $post_id);
-                $result = $wpdb->get_row($sql_query, ARRAY_A);
-                echo $result['count'];
-            }],
+        'admin_cols' => [
+            'event-date' => [
+                'title' => 'Event date',
+                'sortable' => false,
+                'function' => function () {
+                    global $post;
+                    $event_date = get_field('event_date', $post);
+                    $event_time = get_field('event_time', $post);
+
+                    echo empty($event_date) || empty($event_time) ? "&mdash;" : "$event_date $event_time";
+                },
+            ],
+            'registrations' => [
+                'title' => 'Registrations',
+                'sortable' => false,
+                'function' => function () {
+                    global $post, $wpdb;
+                    $post_id = $post->ID;
+
+                    $count = $wpdb->get_var(
+                        $wpdb->prepare(
+                            "SELECT COUNT(meta_id) FROM $wpdb->postmeta WHERE meta_key = 'registration_event_id' AND meta_value = %d",
+                            $post_id
+                        )
+                    );
+
+                    echo $count;
+                },
+            ],
         ],
+        
         'admin_filters'        => [],
     ];
 
@@ -106,8 +118,8 @@ function register_post_type_registration()
                     return;
                 }
                 ?>
-                <a href="<?= get_edit_post_link($registration_event_id) ?>"><?= get_the_title($registration_event_id) ?></a>
-                <?php
+<a href="<?= get_edit_post_link($registration_event_id) ?>"><?= get_the_title($registration_event_id) ?></a>
+<?php
             }],
         ],
         'admin_filters'        => [],
